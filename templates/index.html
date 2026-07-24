@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NoteLense — Zoom into what matters</title>
+
+    <meta name="description"
+        content="AI Powered Notes Analyzer using Google Gemini AI">
+
+    <link rel="icon"
+        href="{{ url_for('static', filename='images/logo.png') }}">
+
+    <!-- Google Fonts -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Markdown Renderer -->
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer
+        src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+    <script defer
+        src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<header>
+
+    <nav class="navbar">
+
+        <div class="logo">
+
+            <img src="{{ url_for('static', filename='images/logo.png') }}"
+                alt="NoteLense Logo">
+
+            <span>NoteLense</span>
+
+        </div>
+
+        <div class="nav-links">
+
+            <a href="#home">Home</a>
+
+            <a href="#features">Features</a>
+
+            <a href="#upload">Upload</a>
+
+            <a href="#dashboard">Dashboard</a>
+
+            <a href="#about">About</a>
+
+            {% if user %}
+
+            <a href="{{ url_for('history') }}">History</a>
+
+            <a href="{{ url_for('profile') }}">Profile</a>
+
+            <a href="{{ url_for('logout') }}">Logout</a>
+
+            {% else %}
+
+            <a href="{{ url_for('login') }}">Login</a>
+
+            <a href="{{ url_for('signup') }}">Signup</a>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+</header>
+
+<!-- ================= HERO ================= -->
+
+<section class="hero" id="home">
+
+    <div class="hero-content">
+
+        <p class="tag">
+            🚀 AI Powered Notes Analyzer
+        </p>
+
+        <h1>
+
+            NoteLense
+
+            <br>
+
+            <span>Zoom into what matters</span>
+
+        </h1>
+
+        <p>
+
+            Convert your notes into high-quality study material using
+            Google Gemini AI.
+
+            Generate summaries, revision notes, MCQs,
+            viva questions, flashcards, important topics,
+            study plans and much more in seconds.
+
+        </p>
+
+        <div style="display:flex;gap:15px;flex-wrap:wrap;">
+
+            <a href="#upload" class="primary-btn">
+
+                Analyze Notes 🚀
+
+            </a>
+
+            <a href="#features" class="primary-btn"
+                style="background:#0f172a;border:1px solid #38bdf8;">
+
+                Explore Features
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="hero-card">
+
+        <img src="{{ url_for('static', filename='images/logo.png') }}"
+            alt="AI Logo">
+
+        <h3>Gemini AI Assistant</h3>
+
+        <p>
+
+            Upload your notes and let AI transform
+            them into exam-ready study resources.
+
+        </p>
+
+        <hr style="margin:20px 0;border-color:#1e293b;">
+
+        <div style="text-align:left;line-height:2;">
+
+            ✅ Summary
+
+            <br>
+
+            ✅ Short Notes
+
+            <br>
+
+            ✅ Key Points
+
+            <br>
+
+            ✅ MCQs
+
+            <br>
+
+            ✅ Viva Questions
+
+            <br>
+
+            ✅ Flashcards
+
+            <br>
+
+            ✅ Study Plan
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= FEATURES ================= -->
+
+<section class="features" id="features">
+
+    <div class="section-title">
+
+        <p class="tag">
+            Powerful AI Features
+        </p>
+
+        <h2>
+
+            Everything You Need For Smart Learning
+
+        </h2>
+
+    </div>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+
+            <h3>📖 AI Summary</h3>
+
+            <p>
+
+                Generate concise and meaningful summaries
+                from lengthy notes.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>📝 Short Notes</h3>
+
+            <p>
+
+                Revision-friendly notes
+                for quick exam preparation.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>⭐ Key Points</h3>
+
+            <p>
+
+                AI extracts the most
+                important concepts automatically.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>❓ MCQs</h3>
+
+            <p>
+
+                Practice AI-generated
+                multiple-choice questions.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>🎤 Viva Questions</h3>
+
+            <p>
+
+                Prepare for viva with
+                intelligent question-answer pairs.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>🧠 Flashcards</h3>
+
+            <p>
+
+                Memorize concepts faster
+                using AI flashcards.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>📅 Study Plan</h3>
+
+            <p>
+
+                Personalized study roadmap
+                generated from your notes.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>⚡ Fast Processing</h3>
+
+            <p>
+
+                Upload your notes and
+                receive complete study material in seconds.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ========= PART 2 STARTS FROM UPLOAD SECTION ========= -->
+ <!-- ================= UPLOAD SECTION ================= -->
+
+<section class="upload-section" id="upload">
+
+    <div class="section-title">
+
+        <p class="tag">
+            Upload Notes
+        </p>
+
+        <h2>
+            Turn Your Notes Into Smart Study Material
+        </h2>
+
+    </div>
+
+    <div class="upload-container">
+
+        <div class="upload-content">
+
+            <h2>
+                📚 AI Powered Study Assistant
+            </h2>
+
+            <p>
+
+                Upload your study notes and let
+                Google Gemini AI generate
+                structured study material in seconds.
+
+            </p>
+
+            <div class="upload-features">
+
+                <div>✅ PDF Documents</div>
+
+                <div>✅ DOCX Files</div>
+
+                <div>✅ TXT Files</div>
+
+                <div>✅ Images (OCR)</div>
+
+                <div>✅ Gemini AI Analysis</div>
+
+                <div>✅ Smart Study Guide</div>
+
+            </div>
+
+        </div>
+
+        <!-- Upload Card -->
+
+        <div class="upload-box">
+
+            <div class="upload-logo">
+
+                📂
+
+            </div>
+
+            <h3>
+
+                Upload Your Notes
+
+            </h3>
+
+            <p>
+
+                Supported:
+                PDF, DOCX, TXT, PNG, JPG
+
+            </p>
+
+            <form
+
+                action="/analyze"
+
+                method="POST"
+
+                enctype="multipart/form-data"
+
+                id="uploadForm"
+
+            >
+
+                <input
+
+                    type="file"
+
+                    id="fileUpload"
+
+                    name="notes"
+
+                    accept=".pdf,.docx,.txt,.png,.jpg,.jpeg"
+
+                    required
+
+                >
+
+                <button
+
+                    type="submit"
+
+                    id="analyzeBtn"
+
+                >
+
+                    🚀 Analyze With Gemini
+
+                </button>
+
+            </form>
+
+            <div
+
+                id="loading"
+
+                style="display:none;margin-top:25px;"
+
+            >
+
+                <div class="loader"></div>
+
+                <p>
+
+                    Gemini AI is analyzing your notes...
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= DASHBOARD ================= -->
+
+<section class="dashboard" id="dashboard">
+
+    <div class="section-title">
+
+        <p class="tag">
+
+            AI Generated Result
+
+        </p>
+
+        <h2>
+
+            Study Dashboard
+
+        </h2>
+
+    </div>
+
+    <div class="result-container">
+
+        <!-- Header -->
+
+        <div class="result-header">
+
+            <div class="result-header-left">
+
+                <img
+
+                    src="{{ url_for('static', filename='images/logo.png') }}"
+
+                    class="result-logo"
+
+                    alt="Logo"
+
+                >
+
+                <div>
+
+                    <h3>
+
+                        📘 AI Study Guide
+
+                    </h3>
+
+                    <p>
+
+                        Generated by Google Gemini AI
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="result-actions">
+
+                <button
+
+                    id="copyBtn"
+
+                    type="button"
+
+                >
+
+                    📋 Copy
+
+                </button>
+
+                <button
+
+                    id="printBtn"
+
+                    type="button"
+
+                    onclick="window.print()"
+
+                >
+
+                    🖨 Print
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- Result Area -->
+
+        <div
+
+            id="result-container"
+
+            class="result-content"
+
+        >
+
+            <div class="result-card">
+
+                <img
+
+                    src="{{ url_for('static', filename='images/logo.png') }}"
+
+                    class="result-logo"
+
+                    alt="Logo"
+
+                >
+
+                <h3>
+
+                    Your AI Study Guide Will Appear Here
+
+                </h3>
+
+                <p>
+
+                    Upload your study notes and click
+
+                    <b>
+
+                        Analyze With Gemini
+
+                    </b>
+
+                    to generate:
+
+                </p>
+
+                <ul class="waiting-list">
+
+                    <li>📖 Summary</li>
+
+                    <li>📝 Short Notes</li>
+
+                    <li>⭐ Key Points</li>
+
+                    <li>📚 Important Topics</li>
+
+                    <li>❓ MCQs</li>
+
+                    <li>🎤 Viva Questions</li>
+
+                    <li>🧠 Flashcards</li>
+
+                    <li>📅 Study Plan</li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ========= PART 3 STARTS FROM ABOUT SECTION ========= -->
+ <!-- ================= ABOUT ================= -->
+
+<section class="about" id="about">
+
+    <div class="about-container">
+
+        <p class="tag">
+
+            About NoteLense
+
+        </p>
+
+        <h2>
+
+            NoteLense — Zoom into what matters
+
+        </h2>
+
+        <p>
+
+            NoteLense is an AI-powered Notes Analyzer built using
+            Python, Flask and Google Gemini AI.
+
+            It transforms ordinary notes into structured study material
+            including summaries, revision notes, important questions,
+            MCQs, viva questions, flashcards and personalized study plans.
+
+            Designed especially for students to save time and improve
+            exam preparation.
+
+        </p>
+
+        <div class="developer-card">
+
+            <h3>
+
+                👨‍💻 Developer
+
+            </h3>
+
+            <p>
+
+                <b>Mayur Kumar Singh</b>
+
+            </p>
+
+            <p>
+
+                B.Tech Computer Science (AI & ML)
+
+            </p>
+
+            <p>
+
+                Shri Ramswaroop Memorial College of Engineering
+                and Management (SRMCEM), Lucknow
+
+            </p>
+
+            <br>
+
+            <p>
+
+                <b>Guided By</b>
+
+            </p>
+
+            <p>
+
+                Mr. Suryamani Sir
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= TRAINING ================= -->
+
+<section class="training">
+
+    <div class="training-container">
+
+        <p class="tag">
+
+            SRDT Summer Training
+
+        </p>
+
+        <h2>
+
+            Project Details
+
+        </h2>
+
+        <div class="training-card">
+
+            <p>
+
+                <b>Project Name :</b>
+
+                NoteLense — AI Notes Analyzer
+
+            </p>
+
+            <p>
+
+                <b>Developer :</b>
+
+                Mayur Kumar Singh
+
+            </p>
+
+            <p>
+
+                <b>Course :</b>
+
+                B.Tech CSE (AI/ML)
+
+            </p>
+
+            <p>
+
+                <b>College :</b>
+
+                SRMCEM Lucknow
+
+            </p>
+
+            <p>
+
+                <b>Technology :</b>
+
+                Python, Flask, Gemini AI,
+                HTML, CSS, JavaScript
+
+            </p>
+
+            <p>
+
+                <b>Duration :</b>
+
+                SRDT Summer Training 2026
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="footer-content">
+
+        <img
+
+        src="{{ url_for('static', filename='images/logo.png') }}"
+
+        style="width:65px;margin-bottom:15px;">
+
+        <h3>
+
+            NoteLense
+
+        </h3>
+
+        <p>
+
+            Zoom into what matters 🚀
+
+        </p>
+
+        <br>
+
+        <p>
+
+            Developed by
+
+            <b>
+
+                Mayur Kumar Singh
+
+            </b>
+
+        </p>
+
+        <p>
+
+            Powered by Google Gemini AI
+
+        </p>
+
+        <br>
+
+        <p>
+
+            © 2026 NoteLense
+
+            All Rights Reserved.
+
+        </p>
+
+    </div>
+
+</footer>
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<script>
+
+const form=document.getElementById("uploadForm");
+
+const loading=document.getElementById("loading");
+
+const btn=document.getElementById("analyzeBtn");
+
+if(form){
+
+form.addEventListener("submit",()=>{
+
+loading.style.display="block";
+
+btn.disabled=true;
+
+btn.innerHTML="Analyzing...";
+
+});
+
+}
+
+const copyBtn=document.getElementById("copyBtn");
+
+if(copyBtn){
+
+copyBtn.onclick=function(){
+
+const txt=document.getElementById("result-container").innerText;
+
+navigator.clipboard.writeText(txt);
+
+copyBtn.innerHTML="✅ Copied";
+
+setTimeout(()=>{
+
+copyBtn.innerHTML="📋 Copy";
+
+},2000);
+
+}
+
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+
+if(typeof renderMathInElement==="function"){
+
+renderMathInElement(document.body);
+
+}
+
+});
+
+</script>
+
+</body>
+
+</html>

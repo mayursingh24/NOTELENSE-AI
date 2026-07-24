@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - NoteLense</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NoteLense Logo">
+            <span>NoteLense</span>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}#home">Home</a>
+            <a href="{{ url_for('home') }}#upload">Upload</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+</header>
+
+<section class="dashboard">
+    <div class="section-title">
+        <p class="tag">Saved Work</p>
+        <h2>Analysis History</h2>
+    </div>
+
+    <div class="result-container">
+        <div class="result-header">
+            <div class="result-header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" class="result-logo" alt="Logo">
+                <div>
+                    <h3>Your Study Guides</h3>
+                    <p>{{ records|length }} saved result{{ "" if records|length == 1 else "s" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-content">
+            {% if records %}
+                {% for record in records %}
+                <div class="history-item">
+                    <h3>{{ record.filename }}</h3>
+                    <p><b>Type :</b> {{ record.file_type|upper }} | <b>Created :</b> {{ record.created_at }}</p>
+                    {% if record.warning %}
+                    <div class="ai-warning">
+                        <strong>{{ record.warning }}</strong><br>
+                        {{ record.warning_detail or "" }}
+                    </div>
+                    {% endif %}
+                    <div class="ai-result history-result" data-markdown="{{ record.result|e }}"></div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="result-card">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" class="result-logo" alt="Logo">
+                    <h3>No History Yet</h3>
+                    <p>Analyze notes while logged in and your study guides will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+document.querySelectorAll(".history-result").forEach((item)=>{
+    const markdown=item.dataset.markdown || "";
+    item.innerHTML=typeof marked !== "undefined" ? marked.parse(markdown) : markdown.replace(/\n/g,"<br>");
+});
+</script>
+</body>
+
+</html>

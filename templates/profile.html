@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - NoteLense</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NoteLense Logo">
+            <span>NoteLense</span>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}#home">Home</a>
+            <a href="{{ url_for('home') }}#upload">Upload</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+</header>
+
+<section class="about">
+    <div class="about-container">
+        <p class="tag">My Profile</p>
+        <h2>{{ user.name if user else "Profile" }}</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="developer-card">
+            <h3>Account Details</h3>
+            <p><b>Name :</b> {{ user.name }}</p>
+            <p><b>Email :</b> {{ user.email }}</p>
+            <p><b>Total Saved Analyses :</b> {{ history_count }}</p>
+            <p><b>Joined :</b> {{ user.created_at }}</p>
+            <br>
+            <a href="{{ url_for('history') }}" class="primary-btn">View History</a>
+        </div>
+    </div>
+</section>
+</body>
+
+</html>
