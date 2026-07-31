@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: notelense-ai-notes-analyzer
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: WEB_TIMEOUT
+        value: "120"
+      - key: TESSERACT_PATH
+        value: /usr/bin/tesseract
+      - key: POPPLER_PATH
+        value: /usr/bin
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        value: "3306"
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        sync: false

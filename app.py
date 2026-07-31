@@ -582,6 +582,12 @@ def home():
     return render_template("index.html", user=current_user(), db_ready=db_ready)
 
 
+@app.route("/healthz")
+def healthz():
+    """Lightweight health check for Render."""
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     """Create a NoteLense account."""
@@ -833,7 +839,8 @@ def server_error(e):
 
 if __name__ == "__main__":
     app.run(
-        debug=os.getenv("FLASK_DEBUG", "1") == "1",
+        host=os.getenv("HOST", "0.0.0.0"),
+        debug=os.getenv("FLASK_DEBUG", "0") == "1",
         port=int(os.getenv("PORT", "5000")),
         use_reloader=False,
     )
