@@ -8,3 +8,4 @@ pytesseract==0.3.10
 Pillow>=11.0.0,<13.0.0
 google-genai>=1.0.0,<3.0.0
 mysql-connector-python>=9.0.0,<10.0.0
+gunicorn==23.0.0
