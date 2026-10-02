@@ -71,8 +71,8 @@ NoteLense is an AI-powered study assistant that transforms notes, PDFs, document
 ### Clone Repository
 
 ```bash
-git clone https://github.com/mayursingh24/SD_mayur_0090.git
-cd SD_mayur_0090
+git clone https://github.com/mayursingh24/NOTELENSE-AI.git
+cd NOTELENSE-AI
 ```
 
 ### Create Virtual Environment
