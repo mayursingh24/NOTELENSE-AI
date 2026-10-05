@@ -47,14 +47,54 @@ app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "txt", "png", "jpg", "jpeg"}
 
-DB_CONFIG = {
-    "host": os.getenv("MYSQL_HOST", "localhost"),
-    "port": int(os.getenv("MYSQL_PORT", "3306")),
-    "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD", ""),
-    "database": os.getenv("MYSQL_DATABASE", "notelense"),
-    "connection_timeout": int(os.getenv("MYSQL_CONNECTION_TIMEOUT", "3")),
-}
+def get_db_config():
+    """Extract MySQL config supporting both standard and Railway environment variables."""
+    host = os.getenv("MYSQL_HOST") or os.getenv("MYSQLHOST") or "localhost"
+    port_str = os.getenv("MYSQL_PORT") or os.getenv("MYSQLPORT") or "3306"
+    try:
+        port = int(port_str)
+    except (ValueError, TypeError):
+        port = 3306
+    user = os.getenv("MYSQL_USER") or os.getenv("MYSQLUSER") or "root"
+    password = os.getenv("MYSQL_PASSWORD") or os.getenv("MYSQLPASSWORD") or ""
+    database = os.getenv("MYSQL_DATABASE") or os.getenv("MYSQLDATABASE") or "notelense"
+    timeout_str = os.getenv("MYSQL_CONNECTION_TIMEOUT", "3")
+    try:
+        timeout = int(timeout_str)
+    except (ValueError, TypeError):
+        timeout = 3
+
+    # Support full connection string if provided (Railway/Render standard)
+    db_url = os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL")
+    if db_url and db_url.startswith("mysql"):
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(db_url)
+            if parsed.hostname:
+                host = parsed.hostname
+            if parsed.port:
+                port = parsed.port
+            if parsed.username:
+                user = parsed.username
+            if parsed.password:
+                password = parsed.password
+            dbname = parsed.path.lstrip("/")
+            if dbname:
+                database = dbname
+        except Exception:
+            pass
+
+    return {
+        "host": host,
+        "port": port,
+        "user": user,
+        "password": password,
+        "database": database,
+        "connection_timeout": timeout,
+    }
+
+
+DB_CONFIG = get_db_config()
 
 db_ready = False
 
@@ -158,7 +198,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 if not GEMINI_API_KEY:
     print("WARNING: GEMINI_API_KEY not found. The app will use the local fallback generator.")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -172,11 +212,11 @@ def allowed_file(filename):
 
 
 def get_db_connection(use_database=True):
-    """Create a MySQL connection, optionally before the app database exists."""
+    """Create a MySQL connection, dynamically reading config and supporting cloud environments."""
     if mysql is None:
         raise RuntimeError("mysql-connector-python is not installed.")
 
-    config = DB_CONFIG.copy()
+    config = get_db_config()
     if not use_database:
         config.pop("database", None)
 
@@ -192,17 +232,12 @@ def init_database():
         db_ready = False
         return False
 
-    try:
-        server_conn = get_db_connection(use_database=False)
-        server_cursor = server_conn.cursor()
-        server_cursor.execute(
-            f"CREATE DATABASE IF NOT EXISTS `{DB_CONFIG['database']}` "
-            "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-        )
-        server_cursor.close()
-        server_conn.close()
+    config = get_db_config()
+    db_name = config.get("database", "notelense")
 
-        conn = get_db_connection()
+    # Step 1: Attempt direct connection to the database (standard on cloud providers like Railway)
+    try:
+        conn = get_db_connection(use_database=True)
         cursor = conn.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -231,13 +266,58 @@ def init_database():
         cursor.close()
         conn.close()
         db_ready = True
-        print(f"MySQL database '{DB_CONFIG['database']}' is ready.")
+        print(f"MySQL database '{db_name}' is connected and tables are verified.")
+        return True
+    except Exception as direct_err:
+        print(f"Direct connection to database '{db_name}' not available yet ({direct_err}). Trying server-level creation...")
+
+    # Step 2: Attempt server-level CREATE DATABASE if direct connection wasn't possible
+    try:
+        server_conn = get_db_connection(use_database=False)
+        server_cursor = server_conn.cursor()
+        server_cursor.execute(
+            f"CREATE DATABASE IF NOT EXISTS `{db_name}` "
+            "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+        )
+        server_cursor.close()
+        server_conn.close()
+
+        conn = get_db_connection(use_database=True)
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(120) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password_hash VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS analysis_history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                filename VARCHAR(255) NOT NULL,
+                file_type VARCHAR(20) NOT NULL,
+                extracted_text LONGTEXT,
+                result LONGTEXT NOT NULL,
+                warning VARCHAR(255),
+                warning_detail TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        db_ready = True
+        print(f"MySQL database '{db_name}' created and tables are ready.")
         return True
     except Exception as e:
         db_ready = False
-        print("WARNING: MySQL setup failed. Login, profile, and history will be unavailable.")
-        print(str(e))
+        print(f"WARNING: MySQL setup failed ({e}). Login, profile, and history will be unavailable.")
         return False
+
 
 
 def query_one(sql, params=None):
@@ -753,13 +833,20 @@ def analyze():
 
     # ---- Call Gemini or fall back locally ----
     try:
-        if client is None:
+        active_client = client
+        if active_client is None:
+            current_key = os.getenv("GEMINI_API_KEY")
+            if current_key:
+                active_client = genai.Client(api_key=current_key)
+
+        if active_client is None:
             raise RuntimeError("GEMINI_API_KEY is missing.")
 
         prompt = build_gemini_prompt(extracted_text)
+        active_model = os.getenv("GEMINI_MODEL") or GEMINI_MODEL or "gemini-2.5-flash"
 
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
+        response = active_client.models.generate_content(
+            model=active_model,
             contents=prompt,
         )
 
@@ -806,6 +893,17 @@ def clear():
     except Exception as e:
         print("Clear uploads error:", e)
         return jsonify({"error": "Failed to clear uploaded files."}), 500
+
+
+@app.route("/healthz")
+@app.route("/health")
+def healthz():
+    """Health check endpoint for Railway, Render, Docker, and monitoring."""
+    return jsonify({
+        "status": "healthy",
+        "service": "NoteLense-AI",
+        "database": "ready" if db_ready else "offline"
+    }), 200
 
 
 # =========================================================

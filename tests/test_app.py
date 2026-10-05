@@ -41,6 +41,14 @@ class RouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertIn(b"Please login or signup", response.data)
 
+    def test_healthz_endpoint(self):
+        response = self.client.get("/healthz")
+
+        self.assertEqual(response.status_code, 200)
+        json_data = response.get_json()
+        self.assertEqual(json_data["status"], "healthy")
+        self.assertEqual(json_data["service"], "NoteLense-AI")
+
 
 if __name__ == "__main__":
     unittest.main()
