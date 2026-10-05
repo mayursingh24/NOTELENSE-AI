@@ -462,16 +462,39 @@ def extract_text_from_scanned_pdf(filepath):
             r"C:\poppler\Library\bin."
         )
 
-    convert_kwargs = {}
-    if POPPLER_PATH:
+    convert_kwargs = {"dpi": 130}
+    if POPPLER_PATH and os.path.exists(POPPLER_PATH):
         convert_kwargs["poppler_path"] = POPPLER_PATH
 
-    pages = convert_from_path(filepath, **convert_kwargs)
-    for page_image in pages:
-        page_text = pytesseract.image_to_string(page_image)
-        ocr_text += page_text + "\n"
+    try:
+        from pdf2image import pdfinfo_from_path
+        info = pdfinfo_from_path(filepath, **convert_kwargs)
+        total_pages = int(info.get("Pages", 6))
+    except Exception:
+        total_pages = 6
+
+    # Process up to 10 pages one-by-one to prevent container OOM (Out-of-Memory) crashes
+    max_pages = min(total_pages, 10)
+    for page_num in range(1, max_pages + 1):
+        try:
+            page_images = convert_from_path(
+                filepath,
+                first_page=page_num,
+                last_page=page_num,
+                **convert_kwargs
+            )
+            for page_img in page_images:
+                page_text = pytesseract.image_to_string(page_img)
+                if page_text:
+                    ocr_text += page_text + "\n"
+                del page_img
+            del page_images
+        except Exception as page_err:
+            print(f"OCR warning on page {page_num}: {page_err}")
+            break
 
     return ocr_text
+
 
 
 def extract_text_from_docx(filepath):

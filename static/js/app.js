@@ -190,15 +190,33 @@ uploadForm.addEventListener("submit", async function(e){
 
     catch(error){
 
-        console.log(error);
+        console.error(error);
 
         renderMessage(
 
-            "❌ Server Error",
+            "❌ Connection Error",
 
-            "Unable to connect with backend."
+            (error && error.message) ? error.message : "Network request failed. Please check your internet or retry."
 
         );
+
+    }
+
+    finally{
+
+        const loadingElem=document.getElementById("loading");
+
+        const btnElem=document.getElementById("analyzeBtn");
+
+        if(loadingElem) loadingElem.style.display="none";
+
+        if(btnElem){
+
+            btnElem.disabled=false;
+
+            btnElem.innerHTML="🚀 Analyze With Gemini";
+
+        }
 
     }
 
