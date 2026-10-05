@@ -852,17 +852,43 @@ def analyze():
             raise RuntimeError("GEMINI_API_KEY is missing.")
 
         prompt = build_gemini_prompt(extracted_text)
-        active_model = resolve_model_name()
+        primary_model = resolve_model_name()
 
-        response = active_client.models.generate_content(
-            model=active_model,
-            contents=prompt,
-        )
+        # Build cascade list: try primary first, then high-throughput models if 503/high-demand occurs
+        candidates = [primary_model]
+        for fallback_name in ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash"):
+            if fallback_name not in candidates:
+                candidates.append(fallback_name)
+
+        response = None
+        last_error = None
+
+        for model_to_try in candidates:
+            try:
+                print(f"Calling Gemini with model: {model_to_try}")
+                response = active_client.models.generate_content(
+                    model=model_to_try,
+                    contents=prompt,
+                )
+                if response and response.text and response.text.strip():
+                    print(f"Success with model: {model_to_try}")
+                    break
+            except Exception as model_err:
+                last_error = model_err
+                err_str = str(model_err)
+                print(f"Model {model_to_try} failed: {err_str}")
+                # If high demand (503) or rate limit (429), try next candidate
+                if "503" in err_str or "UNAVAILABLE" in err_str or "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                    continue
+                else:
+                    raise model_err
+
+        if response is None or not response.text or not response.text.strip():
+            if last_error:
+                raise last_error
+            raise ValueError("Gemini returned an empty response.")
 
         result_text = response.text
-
-        if not result_text or not result_text.strip():
-            raise ValueError("Gemini returned an empty response.")
 
         save_analysis_history(filename, ext, extracted_text, result_text)
 
