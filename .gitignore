@@ -1,9 +1,33 @@
+# Environment secrets — NEVER commit
 .env
+
+# Virtual environments
 .venv/
 venv/
+
+# Python cache
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
 .pytest_cache/
+
+# Uploads folder (user files — not needed in repo)
 uploads/
+
+# Windows-only Poppler binaries
 poppler/
+
+# Logs
 *.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# SD_mayur_0090 is a legacy subfolder — not part of main app
+SD_mayur_0090/

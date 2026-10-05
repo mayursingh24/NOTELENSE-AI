@@ -1,0 +1,11 @@
+# Railway uses Nixpacks to build the Docker image.
+# This file adds Tesseract OCR and Poppler (needed for scanned PDF support).
+
+[phases.setup]
+nixPkgs = ["tesseract", "poppler_utils", "python312"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "gunicorn --bind 0.0.0.0:$PORT --workers ${WEB_CONCURRENCY:-1} --timeout ${WEB_TIMEOUT:-120} app:app"
