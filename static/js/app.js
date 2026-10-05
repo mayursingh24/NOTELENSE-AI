@@ -69,6 +69,14 @@ uploadForm.addEventListener("submit", async function(e){
 
         });
 
+        if(response.status===401){
+
+            renderMessage("⚠️ Login Required","Your session has expired. Please <a href='/login' style='color:#38bdf8;text-decoration:underline;'>Login</a> to continue.");
+
+            return;
+
+        }
+
         const data=await response.json();
 
         if(data.error){
