@@ -194,11 +194,20 @@ else:
     print("WARNING: Poppler ('pdftoppm') not found. "
           "Scanned PDF OCR will fail until Poppler is properly installed or POPPLER_PATH is set.")
 
+def resolve_model_name():
+    """Return active Gemini model, automatically upgrading deprecated versions."""
+    model = (os.getenv("GEMINI_MODEL") or "").strip()
+    deprecated_prefixes = ("gemini-2.5", "gemini-2.0", "gemini-1.5", "gemini-3.5")
+    if not model or any(model.startswith(prefix) for prefix in deprecated_prefixes):
+        return "gemini-3.8-flash"
+    return model
+
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 if not GEMINI_API_KEY:
     print("WARNING: GEMINI_API_KEY not found. The app will use the local fallback generator.")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = resolve_model_name()
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -843,7 +852,7 @@ def analyze():
             raise RuntimeError("GEMINI_API_KEY is missing.")
 
         prompt = build_gemini_prompt(extracted_text)
-        active_model = os.getenv("GEMINI_MODEL") or GEMINI_MODEL or "gemini-2.5-flash"
+        active_model = resolve_model_name()
 
         response = active_client.models.generate_content(
             model=active_model,
