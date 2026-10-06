@@ -10,12 +10,13 @@
 [![Gemini AI](https://img.shields.io/badge/Gemini-AI-8A2BE2?style=for-the-badge&logo=google)](https://ai.google.dev)
 [![MySQL](https://img.shields.io/badge/MySQL-Database-orange?style=for-the-badge&logo=mysql)](https://mysql.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://docker.com)
+[![Railway](https://img.shields.io/badge/Deploy-Railway-0B0D0E?style=for-the-badge&logo=railway)](https://railway.app)
 [![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?style=for-the-badge&logo=render)](https://render.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 **NoteLense** is an AI-powered study assistant that transforms your raw notes into structured, exam-ready study material — in seconds. Powered by **Google Gemini AI**, it reads PDFs, DOCX, TXT, and even scanned images, then generates summaries, MCQs, flashcards, viva questions, study plans, and much more.
 
-[🚀 Live Demo](https://notelense-ai-notes-analyzer.onrender.com) &nbsp;|&nbsp; [📦 GitHub Repo](https://github.com/mayursingh24/NOTELENSE-AI) &nbsp;|&nbsp; [🐛 Report Bug](https://github.com/mayursingh24/NOTELENSE-AI/issues)
+[🚀 Live Demo](https://notelense-ai-production.up.railway.app/) &nbsp;|&nbsp; [📦 GitHub Repo](https://github.com/mayursingh24/NOTELENSE-AI) &nbsp;|&nbsp; [🐛 Report Bug](https://github.com/mayursingh24/NOTELENSE-AI/issues)
 
 </div>
 
@@ -40,6 +41,7 @@
 - [⚙️ Installation & Setup](#️-installation--setup)
 - [🔑 Environment Variables](#-environment-variables)
 - [🐳 Docker Deployment](#-docker-deployment)
+- [🚂 Deploy on Railway](#-deploy-on-railway)
 - [☁️ Deploy on Render](#️-deploy-on-render)
 - [🧪 Running Tests](#-running-tests)
 - [📂 API Reference](#-api-reference)
@@ -521,6 +523,34 @@ services:
 volumes:
   mysql_data:
 ```
+
+---
+
+## 🚂 Deploy on Railway
+
+NoteLense is deployed live on Railway at: **[https://notelense-ai-production.up.railway.app/](https://notelense-ai-production.up.railway.app/)**
+
+### Quick Railway Setup:
+1. Log in to [railway.app](https://railway.app) with your GitHub account.
+2. Click **New Project** → **Deploy from GitHub repo** → select `mayursingh24/NOTELENSE-AI`.
+3. Add a **MySQL** database service:
+   - Click `+ Add Service` → `Database` → `MySQL`.
+4. In your `NOTELENSE-AI` service, open the **Variables** tab and set:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GEMINI_MODEL=gemini-flash-lite-latest
+   SECRET_KEY=notelense-secret-2026
+   MYSQL_HOST=${{MySQL.MYSQLHOST}}
+   MYSQL_PORT=${{MySQL.MYSQLPORT}}
+   MYSQL_USER=${{MySQL.MYSQLUSER}}
+   MYSQL_PASSWORD=${{MySQL.MYSQLPASSWORD}}
+   MYSQL_DATABASE=${{MySQL.MYSQLDATABASE}}
+   TESSERACT_PATH=/usr/bin/tesseract
+   POPPLER_PATH=/usr/bin
+   WEB_CONCURRENCY=1
+   WEB_TIMEOUT=120
+   ```
+5. In **Settings** → **Networking**, click **Generate Domain** (Port: `8080`).
 
 ---
 
